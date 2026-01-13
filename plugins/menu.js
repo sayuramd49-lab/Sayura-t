@@ -20,7 +20,7 @@ const fkontak = {
 
 // ---------------------- FULL MENU -----------------------
 cmd({
-  pattern: "menu",
+  pattern: "menu2",
   react: "📁",
   alias: ["panel","list","commands"],
   desc: "Get full bot command list",
