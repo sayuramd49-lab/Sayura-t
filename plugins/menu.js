@@ -1,106 +1,97 @@
+const config = require('../config');
+const os = require('os');
+const axios = require('axios');
+const { cmd, commands } = require('../command');
+const { runtime } = require('../lib/functions');
+const { buttonMessage } = require('@whiskeysockets/baileys');
+
+const fkontak = {
+  key: {
+    remoteJid: "13135550002@s.whatsapp.net",
+    participant: "0@s.whatsapp.net",
+    fromMe: false,
+    id: "Naze",
+  },
+  message: {
+    contactMessage: {
+      displayName: "𝐒𝐀𝐘𝐔𝐑𝐀-𝐗-𝐌𝐃",
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;Meta AI;;;\nFN:Meta AI\nitem1.TEL;waid=94743826406:94726280182\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
+      sendEphemeral: false,
+    },
+  },
+};
+
 cmd({
-  pattern: "menu2",
+  pattern: "menu",
   react: "📁",
-  alias: ["panel", "list", "commands"],
-  desc: "Get bot's full command list.",
+  alias: ["panel","list","commands"],
+  desc: "Get bot's command list.",
   category: "main",
-  use: '.menu2',
+  use: '.menu',
   filename: __filename
 }, async (conn, mek, m, { from, pushname, prefix, reply, l }) => {
   try {
-    const os = require('os');
-    const axios = require('axios');
+    // Host detection
+    let hostLen = os.hostname().length;
+    let hostname = hostLen === 12 ? 'Replit' : hostLen === 36 ? 'Heroku' : hostLen === 8 ? 'Koyeb' : os.hostname();
 
-    // Hosting platform
-    let hostname;
-    const hostLen = os.hostname().length;
-    if (hostLen === 12) hostname = 'Replit';
-    else if (hostLen === 36) hostname = 'Heroku';
-    else if (hostLen === 8) hostname = 'Koyeb';
-    else hostname = os.hostname();
-
-    // RAM + Uptime
+    // RAM + uptime
     const ramUsed = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
     const ramTotal = Math.round(os.totalmem() / 1024 / 1024);
     const ramUsage = `${ramUsed}MB / ${ramTotal}MB`;
     const rtime = await runtime(process.uptime());
-    const number = conn.user.id.split(':')[0].replace(/@s\.whatsapp\.net$/, '');
 
-    const caption = `*Hello ${pushname} 👋*\nI am *RAVANA-X-MD*\n\n⏰ Uptime: ${rtime}\n🚨 Host: ${hostname}\n🎡 Prefix: ${prefix}\n👤 User: ${pushname}\n⛵ RAM Usage: ${ramUsage}\n👨‍💻 Owner: ${number}\n⚖ Developers: RAVANA TEAM\n🧬 Version: 2.0.0\n💼 Work Type: ${config.WORK_TYPE}`;
+    // Guard conn.user
+    const number = conn.user ? conn.user.id.split(':')[0].replace(/@s\.whatsapp\.net$/, '') : 'unknown';
+
+    const caption = `*Hello ${pushname} 👋*\nI am *RAVANA-X-MD*\n\n⏰ Uptime: ${rtime}\n🚨 Host: ${hostname}\n🎡 Prefix: ${config.PREFIX}\n👤 User: ${pushname}\n⛵ RAM Usage: ${ramUsage}\n👨‍💻 Owner: ${number}\n⚖ Developers: RAVANA TEAM\n🧬 Version: 2.0.0\n💼 Work Type: ${config.WORK_TYPE}`;
 
     // Load image
     let imageBuffer;
     try {
+      if(!config.LOGO.startsWith('http')) throw new Error("Invalid LOGO URL");
       const res = await axios.get(config.LOGO, { responseType: 'arraybuffer' });
       imageBuffer = Buffer.from(res.data, 'binary');
-    } catch {
-      return reply("⚠️ Could not load menu image.");
+    } catch(err) {
+      console.error("❌ Failed to load image:", err.message);
+      return reply("⚠️ Could not load menu image. Check LOGO URL.");
     }
 
-    // Generate full menu text
-    let menuText = '';
-    const categories = ['main','owner','group','movie','download','convert','logo','ai','search','other'];
-    categories.forEach(cat => {
-      menuText += `*─── ${cat.toUpperCase()} COMMANDS ───*\n`;
-      commands.forEach(cmd => {
-        if(cmd.category === cat && !cmd.dontAddCommandList) {
-          menuText += `*│⚡ ${cmd.pattern}* → ${cmd.use || cmd.desc || ''}\n`;
-        }
-      });
-      menuText += '\n';
-    });
+    // Buttons
+    const buttons = [
+      { buttonId: prefix + 'mainmenu', buttonText: { displayText: 'ＭＡＩＮ ＣＯＭＭＡＮＤＳ' }, type: 1 },
+      { buttonId: prefix + 'ownermenu', buttonText: { displayText: 'ＯＷＮＥＲ ＣＯＭＭＡＮＤＳ' }, type: 1 },
+      { buttonId: prefix + 'groupmenu', buttonText: { displayText: 'ＧＲＯＵＰＳ ＣＯＭＭＡＮＤＳ' }, type: 1 },
+      { buttonId: prefix + 'moviemenu', buttonText: { displayText: 'ＭＯＶＩＥ ＣＯＭＭＡＮＤＳ' }, type: 1 },
+      { buttonId: prefix + 'downloadmenu', buttonText: { displayText: 'ＤＯＷＮＬＯＡＤ ＣＯＭＭＡＮＤＳ' }, type: 1 }
+    ];
 
-    // Toggle logic
-    if(config.BUTTON === 'true') {
-      // Button menu
-      const buttons = [
-        { buttonId: prefix+'mainmenu', buttonText: { displayText: 'MAIN' }, type: 1 },
-        { buttonId: prefix+'ownermenu', buttonText: { displayText: 'OWNER' }, type: 1 },
-        { buttonId: prefix+'groupmenu', buttonText: { displayText: 'GROUP' }, type: 1 },
-        { buttonId: prefix+'moviemenu', buttonText: { displayText: 'MOVIE' }, type: 1 },
-        { buttonId: prefix+'downloadmenu', buttonText: { displayText: 'DOWNLOAD' }, type: 1 },
-        { buttonId: prefix+'convertmenu', buttonText: { displayText: 'CONVERT' }, type: 1 },
-        { buttonId: prefix+'logomenu', buttonText: { displayText: 'LOGO' }, type: 1 },
-        { buttonId: prefix+'aimenu', buttonText: { displayText: 'AI' }, type: 1 },
-        { buttonId: prefix+'searchmenu', buttonText: { displayText: 'SEARCH' }, type: 1 },
-        { buttonId: prefix+'othermenu', buttonText: { displayText: 'OTHER' }, type: 1 },
-      ];
-
-      await conn.buttonMessage(from, {
-        image: imageBuffer,
-        caption: menuText,
-        footer: config.FOOTER,
-        buttons,
-        headerType: 4
-      }, mek);
-
-    } else {
-      // List menu
+    // Button vs List toggle
+    if(config.BUTTON === 'true'){
       const listData = {
-        title: "RAVANA-X-MD MENU",
-        description: "Select a category to see commands",
-        buttonText: "🔽 Open Menu",
-        sections: categories.map(cat => ({
-          title: cat.toUpperCase(),
-          rows: commands
-            .filter(cmd => cmd.category === cat && !cmd.dontAddCommandList)
-            .map(cmd => ({
-              title: cmd.pattern,
-              description: cmd.use || cmd.desc || '',
-              rowId: `${prefix}${cat}menu`
-            }))
-        }))
+        title: "Select Menu :)",
+        sections: [{
+          title: "RAVANA-PRO",
+          rows: commands.filter(c => !c.dontAddCommandList).map(c => ({
+            title: `${c.pattern.toUpperCase()} COMMAND`,
+            description: c.desc || c.use || "No description",
+            id: `${prefix}${c.pattern}`
+          }))
+        }]
       };
 
-      await conn.sendMessage(from, {
-        text: caption,
+      return await conn.sendMessage(from, {
+        image: imageBuffer,
+        caption,
         footer: config.FOOTER,
-        templateButtons: [
-          { index: 1, urlButton: { displayText: "🔽 Open Menu", url: "https://wa.me" } }
+        buttons: [
+          { buttonId: "action", buttonText: { displayText: "🔽 Select Option" }, type: 4, nativeFlowInfo: { name: "single_select", paramsJson: JSON.stringify(listData) } }
         ],
-        viewOnce: true,
-        headerType: 1
+        headerType: 1,
+        viewOnce: true
       }, { quoted: fkontak });
+    } else {
+      await conn.buttonMessage(from, { image: imageBuffer, caption, footer: config.FOOTER, buttons, headerType: 4 }, mek);
     }
 
   } catch (e) {
