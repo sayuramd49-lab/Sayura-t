@@ -13,7 +13,7 @@
     "@ffmpeg-installer/ffmpeg": "latest",
     "@google-cloud/translate": "latest",
     
-    "@whiskeysockets/baileys": "^5.0.0",
+    "@whiskeysockets/baileys": "7.0.0-rc.9",
     
     "adm-zip": "latest",
     "axios": "latest",
