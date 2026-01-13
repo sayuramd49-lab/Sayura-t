@@ -75,7 +75,7 @@ async function downloadSession(sessdata, df) {
 
 // මෙතනදී Mega එකෙන් බාන කෑල්ල අපි අයින් කළා, මොකද ඔයා කිව්වා Mega එකේ ෆයිල් එක නැහැ කියලා.
 if (!fs.existsSync(df) && config.SESSION_ID) {
-    const sessdata = config.SESSION_ID.replace("RAVANA-XPRO=", "");
+    const sessdata = config.SESSION_ID.replace("SAYURA-MD=", "");
     (async () => {
         await downloadSession(sessdata, df);
     })();
