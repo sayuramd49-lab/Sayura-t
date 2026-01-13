@@ -13,7 +13,8 @@
     "@ffmpeg-installer/ffmpeg": "latest",
     "@google-cloud/translate": "latest",
     
-    "@whiskeysockets/baileys": "7.0.0-rc.9",
+  
+    "@whiskeysockets/baileys": "6.7.19",
     
     "adm-zip": "latest",
     "axios": "latest",
@@ -24,7 +25,7 @@
     "darksadas-yt-pornhub-scrape": "latest",
     "darksadasyt-anime": "latest",
     "anime-heaven": "latest",
-      "jimp": "latest",
+    "jimp": "^1.6.0",
     "sadaslk-dlcore": "latest",
     "darksadasyt-imgbb-scraper": "latest",
     "express": "latest",
