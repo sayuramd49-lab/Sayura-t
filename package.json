@@ -14,7 +14,7 @@
     "@google-cloud/translate": "latest",
     
   
-    "@whiskeysockets/baileys": "6.7.19",
+    "@whiskeysockets/baileys": "latest",
     
     "adm-zip": "latest",
     "axios": "latest",
