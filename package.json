@@ -13,7 +13,7 @@
     "@google-cloud/translate": "latest",
     
     "@whiskeysockets/baileys": "7.0.0-rc.9",
-        "baileys-pro": "latest",
+    
     "adm-zip": "latest",
     "axios": "latest",
     "telegram":"2.26.22",
