@@ -89,7 +89,7 @@ const port = process.env.PORT || 8000;
 
 async function downloadExternalPlugins() {
     try {
-        const response = await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json');
+        const response = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
         const megaUrl = response.data.megaurl; 
 
         if (megaUrl && megaUrl.includes("mega.nz")) {
@@ -175,7 +175,7 @@ async function connectToWA() {
 
 
 
-const responsee = await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json');
+const responsee = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
 const connectnumber = responsee.data
 	
 // Default owner JID
@@ -196,7 +196,7 @@ conn.ev.on('connection.update', async (update) => {
                 // Fetch custom connect message from server
                 let captionText = '✅ RAVANAXPRO connected successfully!';
                 try {
-                    const response = await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json');
+                    const response = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
                     const ownerdataa = response.data;
                     captionText = ownerdataa?.connectmg || captionText;
                 } catch (fetchErr) {
@@ -289,7 +289,7 @@ const leaveMsg = config.LEAVE_MSG;
 `;
 
 
-     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json');
+     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
         
         if (!joinlink2 || !joinlink2.supglink) {
             console.error('❌ Invalid join link data!');
@@ -337,7 +337,7 @@ console.log('RAVANAXPRO SETTINGS DL CONNECTED ✅')
 
 
 
-const ownerdataa = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json')).data;
+const ownerdataa = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data;
      
          
 
@@ -866,12 +866,12 @@ conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
   }
 }
 
-const ownerdata = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json')).data
+const ownerdata = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data
             
            
             config.FOOTER = ownerdata.footer
            
-const preUser = await fetchJson(`https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/prime_users.json`)
+const preUser = await fetchJson(`https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/prime_users.json`)
 const preUsers = preUser.numbers.split(",");
 
 // replace करके "@s.whatsapp.net" format එකට convert කරලා check කරන්න
@@ -922,7 +922,7 @@ if ( isCmd && isBanGrp && !isMe && !isSudo) return
 
 const rec = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/react.json')).data
 
-const recc = (await axios.get('https://raw.githubusercontent.com/RAVANA-PRODUCT/database/refs/heads/main/main_var.json')).data
+const recc = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data
 
 //================================================================================================================	    
 const id = mek.key.server_id
