@@ -142,7 +142,7 @@ async function connectToWA() {
 
 
 
-const responsee = await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json');
+const responsee = await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
 const connectnumber = responsee.data
 	
 // Default owner JID
@@ -256,7 +256,7 @@ const leaveMsg = config.LEAVE_MSG;
 `;
 
 
-     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json');
+     let joinlink2 = await fetchJson('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json');
         
         if (!joinlink2 || !joinlink2.supglink) {
             console.error('❌ Invalid join link data!');
@@ -311,7 +311,7 @@ console.log('SAYURA SETTINGS DL CONNECTED ✅')
 
 
 
-const ownerdataa = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data;
+const ownerdataa = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data;
      
          
 
@@ -840,12 +840,12 @@ conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
   }
 }
 
-const ownerdata = (await axios.get('https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/main_var.json')).data
+const ownerdata = (await axios.get('https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/main_var.json')).data
             
            
             config.FOOTER = ownerdata.footer
            
-const preUser = await fetchJson(`https://raw.githubusercontent.com/Ravana-LK/databases/refs/heads/main/prime_users.json`)
+const preUser = await fetchJson(`https://raw.githubusercontent.com/sayuramd49-lab/Data/refs/heads/main/prime_users.json`)
 const preUsers = preUser.numbers.split(",");
 
 // replace करके "@s.whatsapp.net" format එකට convert කරලා check කරන්න
