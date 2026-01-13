@@ -9,10 +9,11 @@
   },
   "dependencies": {
     "@adiwajshing/keyed-db": "latest",
+    
     "@ffmpeg-installer/ffmpeg": "latest",
     "@google-cloud/translate": "latest",
     
-    "@whiskeysockets/baileys": "npm:visper-baileys",
+    "@whiskeysockets/baileys": "npm:@adiwajshing/baileys",
     
     "adm-zip": "latest",
     "axios": "latest",
