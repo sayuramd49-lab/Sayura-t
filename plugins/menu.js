@@ -22,7 +22,7 @@ const fkontak = {
 };
 
 cmd({
-  pattern: "menu",
+  pattern: "menu2",
   react: "📁",
   alias: ["panel","list","commands"],
   desc: "Get bot's command list.",
