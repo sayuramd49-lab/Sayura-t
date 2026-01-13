@@ -17,7 +17,7 @@ const {
     generateWAMessageFromContent,
     prepareWAMessageMedia,
     proto
-} = require('@whiskeysockets/baileys')
+} = require('baileys-pro')
 const fs = require('fs')
 const P = require('pino')
 const config = require('./config')
