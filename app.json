@@ -1,0 +1,21 @@
+{
+  "name": "RAVANA-PRO",
+  "description": "Javascript WhatsApp bot made by RAVANA TEAM",
+  "logo": "https://files.catbox.moe/eqf9yk.jpg",
+  "keywords": ["bot"],
+  "success_url": "/",
+
+  "env": {
+    "SESSION_ID": {
+      "description": "Put the session-id here.",
+      "required": true
+    }
+},
+
+     "buildpacks": [
+        {
+            "url": "https://github.com/heroku/heroku-buildpack-nodejs.git"
+        }
+     ],
+  "stack": "heroku-24"
+}
